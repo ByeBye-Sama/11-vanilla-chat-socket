@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Nickname</title>
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+
+<body>
+  <div class="pag-nickname">
+    <h1>Chat CodiGO</h1>
+    <form>
+      <div class="form-row">
+        <label class="text-center">Nickname</label>
+        <input class="js_user form-control" required type="text">
+      </div>
+      <div class="form-row text-center">
+        <button class="btn" type="submit">Enviar</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    function clearSession(){
+      sessionStorage.clear();
+    }
+
+    function registerUser() {
+      const user = document.querySelector('.js_user');
+      const form = document.querySelector('form');
+
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        console.log('user', user.value)
+
+        sessionStorage.setItem('user', user.value);
+        user.value = '';
+        location.href = '/chat';
+      }
+    }
+
+    function init() {
+      clearSession();
+      registerUser();
+    }
+
+    init();
+
+  </script>
+</body>
+
+</html>

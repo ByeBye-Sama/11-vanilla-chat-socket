@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Nickname</title>
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+
+<body>
+  <div class="pag-chat">
+    <div class="chat">
+      <div class="chat-left">
+        <h3 class="chat-left-title">Users connected <div class="js_total_users"></div>
+        </h3>
+        <div class="js_list_users chat-online"></div>
+      </div>
+      <div class="chat-right">
+        <header class="chat-header">
+          <h1>CHAT VANILLA</h1>
+        </header>
+        <main class="chat-main">
+          <div class="js_welcome_user"></div>
+          <div class="js_messages message-box"></div>
+        </main>
+        <footer class="chat-footer">
+          <form>
+            <input class="form-control" required type="text" placeholder="Write here...">
+          </form>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+
+    function welcomeUser() {
+      const div = document.createElement('div');
+      div.classList.add('alert');
+
+      const user = sessionStorage.getItem('user');
+      const container = document.querySelector('.js_welcome_user');
+
+      div.innerHTML = `Welcome ${user}!!`;
+      container.appendChild(div);
+    }
+
+    function htmlListUsers(users) {
+      const usersFilter = users.filter(user => user !== sessionStorage.getItem('user'));
+      const container = document.querySelector('.js_list_users');
+      container.innerHTML = '';
+
+      let totalUsers = 0;
+      let containerTotalUsers = document.querySelector('.js_total_users');
+
+
+      usersFilter.map((user => {
+        totalUsers++;
+        const div = document.createElement('div');
+        div.classList.add('item-user');
+        div.innerHTML = `<span class="connected">&nbsp;</span> ${user}`;
+
+        container.appendChild(div)
+      }))
+
+      containerTotalUsers.innerHTML = `<div> ${totalUsers} </div>`
+    }
+
+    function connectUser() {
+      const user = sessionStorage.getItem('user');
+      socket.emit('channel_connectUser', user);
+      socket.on('channel_connectUser', htmlListUsers)
+    }
+
+    function htmlMessages(objMessages) {
+      const container = document.querySelector('.js_messages');
+      const message = document.createElement('div');
+      message.classList.add('wrap-buble');
+      message.innerHTML = `<div class="bubble">
+        <div class="bubble-user">
+          ${objMessages.from} says: 
+        </div>
+        <div class="bubble-message">
+          ${objMessages.message}
+        </div>
+      </div>`;
+      container.appendChild(message);
+    }
+    function submitMessages() {
+      const form = document.querySelector('form');
+      const input = document.querySelector('input');
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        socket.emit('channel_messages', {
+          from: sessionStorage.getItem('user'),
+          message: input.value
+        });
+        input.value = '';
+      }
+      socket.on('channel_messages', htmlMessages)
+    }
+
+    function init() {
+      welcomeUser();
+      connectUser();
+      submitMessages();
+    }
+
+    (sessionStorage.getItem('user')) ? init() : location.href = '/'
+
+  </script>
+</body>
+
+</html>
